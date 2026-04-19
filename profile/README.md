@@ -12,9 +12,8 @@ If you use [OpenClaw](https://openclaw.ai), [NanoClaw](https://nanoclaw.ai), or 
 
 The data flow:
 
-```
 Your phone  →  PingClaw Server  →  Your agent (OpenClaw webhook / MCP)
-```
+
 
 What gets transmitted:
 
@@ -40,14 +39,6 @@ The server generates ready-to-paste MCP config for Claude Code, Claude Desktop, 
 
 ---
 
-## Why this exists
-
-OpenClaw's native location node works when the app is open. The [docs say so](https://docs.openclaw.ai/nodes/location-command) — background location is listed as a future feature, and silent push on iOS is noted to be unreliable. PingClaw fills that gap today.
-
-It's also a testbed for implementing the native OpenClaw node protocol properly — connecting as a first-class `location` node via WebSocket rather than a webhook consumer. That work is in progress.
-
----
-
 ## Self-hosting
 
 The server is a Go binary. If you'd rather run your own than use the hosted version at [pingclaw.me](https://pingclaw.me):
@@ -60,7 +51,7 @@ cp .env.example .env
 go run ./cmd/server
 ```
 
-The apps point to `https://pingclaw.me` by default but accept a custom server URL in settings. Point them at your own instance.
+The apps point to `https://pingclaw.me` by default but accept a custom server URL in settings if you use a development build. Point the app at your own server instance.
 
 ---
 
@@ -77,7 +68,7 @@ The apps point to `https://pingclaw.me` by default but accept a custom server UR
 
 ## Status
 
-Early. The iOS app and server work. Android is in progress. The native OpenClaw node protocol integration is being researched — see the open issues.
+Early. The iOS app and server work. Android is in progress. The native OpenClaw node protocol integration is being researched.
 
 Contributions welcome, especially from people with OpenClaw setups who can test against real gateway configurations.
 
