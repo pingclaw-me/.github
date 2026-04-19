@@ -47,14 +47,6 @@ Nothing is stored permanently. The server holds your most recent position in mem
 
 ---
 
-## Why this exists
-
-OpenClaw's native location node works when the app is open. The [docs say so](https://docs.openclaw.ai/nodes/location-command) — background location is listed as a future feature, and silent push on iOS is noted to be unreliable. PingClaw fills that gap today.
-
-The native OpenClaw node protocol (connecting as a first-class `location` node via WebSocket) is a future goal — see the [research report](https://github.com/pingclaw-me/pingclaw-server/blob/main/docs/openclaw-node-protocol-research.md).
-
----
-
 
 ## Self-hosting
 
