@@ -1,26 +1,37 @@
+<p align="center">
+  <img src="icon.png" width="96" height="96" alt="PingClaw">
+</p>
+
 # PingClaw
 
-**Location context for AI.** A quiet utility, not an app you stare at.
+**Location context for any AI agent.** One binary, no dependencies.
 
 ---
 
 ## What it does
 
-PingClaw runs on your phone and gives your AI agent a single coordinate when it needs one — accurate, current, scoped to you. No history, no map, no notifications.
-
-If you use [OpenClaw](https://openclaw.ai), [NanoClaw](https://nanoclaw.ai), or any MCP-compatible agent setup, PingClaw is how your agent knows you're at the farmers market and not your desk — without you having to say so.
-
-The data flow:
+PingClaw runs on your phone and gives your AI agent your current location — accurate, current, scoped to you. No history, no map, no notifications.
 
 ```
-Your phone  →  PingClaw Server  →  Your agent (OpenClaw gateway push / MCP / webhook)
+Your phone  →  PingClaw server  →  Your agent (MCP / OpenClaw / webhook)
 ```
 
-What gets transmitted:
+Nothing is stored permanently. Only the single most recent position exists, in memory, with a 24-hour expiry. No database writes, no history, no trails.
 
-[-27.1396, -109.4270](https://www.google.com/maps?q=-27.1396,-109.4270)  ±8m  source: gps
+---
 
-Nothing is stored permanently. The server holds your most recent position in memory for up to 24 hours, overwrites it on the next update, and that's it. No database, no history, no trails. You can inspect every record stored about your account or delete it entirely at [pingclaw.me](https://pingclaw.me).
+## Self-hosting
+
+```bash
+go install github.com/pingclaw-me/pingclaw-server/cmd/pingclaw-server@latest
+pingclaw-server --local
+```
+
+That's it. SQLite, in-memory cache, no Redis, no Postgres, no OAuth credentials. The server prints a pairing token — enter it in the app and location starts flowing. Nothing phones home.
+
+The apps have a **Self-Hosted Server** option on the sign-in screen. Enter your server URL and token — no Apple or Google account needed.
+
+For details, see [pingclaw-server](https://github.com/pingclaw-me/pingclaw-server).
 
 ---
 
@@ -28,64 +39,40 @@ Nothing is stored permanently. The server holds your most recent position in mem
 
 | Repo | What it is |
 |---|---|
-| [pingclaw-server](https://github.com/pingclaw-me/pingclaw-server) | Go server. Receives location from the apps, caches it in Redis, delivers to your agent via OpenClaw gateway push, MCP, or webhook. |
-| [pingclaw-ios](https://github.com/pingclaw-me/pingclaw-ios) | Swift / SwiftUI. Background location updates, Sign in with Apple + Google. |
-| [pingclaw-android](https://github.com/pingclaw-me/pingclaw-android) | Kotlin / Jetpack Compose. Same thing, different platform. |
-| [openclaw-skill](https://github.com/pingclaw-me/openclaw-skill) | OpenClaw skill that teaches the agent to fetch your location from PingClaw on demand. |
+| [pingclaw-server](https://github.com/pingclaw-me/pingclaw-server) | Go server. `--local` for self-hosting (SQLite), hosted mode for multi-user (Postgres + Redis). Built-in MCP server, OpenClaw push, webhooks. |
+| [pingclaw-ios](https://github.com/pingclaw-me/pingclaw-ios) | iOS app (SwiftUI). Background location, Sign in with Apple + Google, self-hosted token pairing. |
+| [pingclaw-android](https://github.com/pingclaw-me/pingclaw-android) | Android app (Kotlin, Jetpack Compose). Foreground service, same features. |
+| [openclaw-skill](https://github.com/pingclaw-me/openclaw-skill) | OpenClaw skill — teaches the agent to fetch your location on demand. |
+| [pingclaw-tools](https://github.com/pingclaw-me/pingclaw-tools) | Development and testing tools: E2E test suites, webhook listener. |
 
 ---
 
 ## Agent integration
 
-**OpenClaw gateway push** — the server pushes each location update directly to your OpenClaw gateway's `/hooks/` endpoint. Your agent gets your position as context automatically, no polling needed. Configure it from the dashboard at [pingclaw.me](https://pingclaw.me).
+**MCP** — the server includes a built-in MCP server at `/pingclaw/mcp`. Paste-ready config for Claude Code, Claude Desktop, VS Code, Cursor, and Zed. No plugin, no sidecar.
+
+**OpenClaw gateway push** — the server pushes each location update directly to your gateway's `/hooks/` endpoint. Your agent gets your position as context automatically.
 
 **OpenClaw skill** — install the [PingClaw skill](https://github.com/pingclaw-me/openclaw-skill) to let your agent fetch your location on demand via `web_fetch`.
 
-**MCP** — the server generates ready-to-paste config for Claude Code, Claude Desktop, VS Code, Cursor, Windsurf, and Zed.
-
-**Webhook** — for other setups, the server handles outbound POST delivery with a verifiable `Authorization: Bearer` header.
-
----
-
-
-## Self-hosting
-
-The server is a Go binary. If you'd rather run your own than use the hosted version at [pingclaw.me](https://pingclaw.me):
-
-```bash
-git clone https://github.com/pingclaw-me/pingclaw-server
-cd pingclaw-server
-cp .env.example .env
-# edit .env — you need a PostgreSQL and Redis instance
-go run ./cmd/server
-```
-
-The apps point to `https://pingclaw.me` by default but accept a custom server URL in settings if you use a development build. Point the app at your own server instance.
+**Webhook** — for other setups, the server POSTs location updates to any URL with a verifiable `Authorization: Bearer` header.
 
 ---
 
 ## Privacy
 
-- Location held in Redis memory only — no database writes
-- 24-hour TTL, overwritten on each update
-- No location history, no movement tracking
-- API key stored as a hash — the raw token is shown once and never again
+- Location held in ephemeral memory only — never written to a database
+- 24-hour TTL, overwritten on each update, then gone
+- No location history, no movement tracking, no telemetry
+- API keys stored as irreversible hashes
+- Self-host means you are the only operator — nothing phones home
 - All stored data viewable and deletable at any time
-- Server code is here — read it if you want to verify
-
----
-
-## Status
-
-The server, iOS app, and Android app are live. OpenClaw gateway push delivery and the OpenClaw skill are available. Native node protocol integration (WebSocket) is planned.
-
-Contributions welcome, especially from people with OpenClaw setups who can test against real gateway configurations.
 
 ---
 
 ## MIT
 
-All three repos. Do whatever you want with it.
+All repos. Do whatever you want with it.
 
 ---
 
